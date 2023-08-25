@@ -1,0 +1,18 @@
+.scene {
+  min-height: 50vh;
+}
+
+.card-container {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.divider {
+  height: 2rem;
+}
