@@ -118,8 +118,8 @@ export default function Game() {
           <div className="row">Dealer: {dealerPoints}</div>
         ) : null}
         <div className="row">
-          {dealerCards.map(({ suit, number }) => (
-            <Card suit={suit} number={number} />
+          {dealerCards.map(({ suit, number }, key) => (
+            <Card key={key} suit={suit} number={number} />
           ))}
         </div>
 
@@ -127,8 +127,8 @@ export default function Game() {
 
         {points > 0 ? <div className="row">You: {points}</div> : null}
         <div className="row">
-          {cards.map(({ suit, number }) => (
-            <Card suit={suit} number={number} />
+          {cards.map(({ suit, number }, key) => (
+            <Card key={key} suit={suit} number={number} />
           ))}
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function Game() {
   function Card({ suit, number }: CardProps) {
     return (
       <div className="card-container">
-        <img src={`/images/cards/${suit}_${number}_white.png`} width={120} />
+        <img src={`./images/cards/${suit}_${number}_white.png`} width={120} />
       </div>
     );
   }
