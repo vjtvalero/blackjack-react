@@ -1,11 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { ReactElement, useEffect, useMemo, useState } from "react";
 import "./Game.css";
 
 const suits = ["Clovers", "Hearts", "Pikes", "Tiles"];
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export default function Game() {
-  const [cards, setCards] = useState<CardProps[]>([]);
-  const [dealerCards, setDealerCards] = useState<CardProps[]>([]);
+  const [cards, setCards] = useState<Array<ReactElement>>([]);
+  const [dealerCards, setDealerCards] = useState<Array<ReactElement>>([]);
+
+  const [cardData, setCardData] = useState<CardProps[]>([]);
+  const [dealerCardData, setDealerCardData] = useState<CardProps[]>([]);
+
   const [gameOver, setGameOver] = useState<boolean>(false);
   const [result, setResult] = useState<string>("");
   const [stand, setStand] = useState<boolean>(false);
@@ -18,6 +26,15 @@ export default function Game() {
 
     setCards((prev) => [
       ...prev,
+      <Card
+        key={`${randomSuit}-${randomNumber}`}
+        suit={randomSuit}
+        number={String(randomNumber)}
+      />,
+    ]);
+
+    setCardData((prev) => [
+      ...prev,
       { suit: randomSuit, number: randomNumber.toString() },
     ]);
   };
@@ -29,24 +46,39 @@ export default function Game() {
 
     setDealerCards((prev) => [
       ...prev,
+      <Card
+        key={`${randomSuit}-${randomNumber}`}
+        suit={randomSuit}
+        number={String(randomNumber)}
+      />,
+    ]);
+
+    setDealerCardData((prev) => [
+      ...prev,
       { suit: randomSuit, number: randomNumber.toString() },
     ]);
   };
 
-  const newGame = () => {
+  const newGame = async () => {
     setCards([]);
     setDealerCards([]);
+    setCardData([]);
+    setDealerCardData([]);
     setGameOver(false);
     setResult("");
-    hit();
-    hitDealer();
-    hitDealer();
+
     setStand(false);
     setDealerStand(false);
+
+    hit();
+    await sleep(500);
+    hitDealer();
+    await sleep(500);
+    hitDealer();
   };
 
   const points = useMemo(() => {
-    return cards.reduce((prev, curr) => {
+    return cardData.reduce((prev, curr) => {
       let num = Number(curr.number);
       if (num > 10) {
         num = 10;
@@ -56,7 +88,7 @@ export default function Game() {
   }, [cards]);
 
   const dealerPoints = useMemo(() => {
-    return dealerCards.reduce((prev, curr) => {
+    return dealerCardData.reduce((prev, curr) => {
       let num = Number(curr.number);
       if (num > 10) {
         num = 10;
@@ -87,6 +119,7 @@ export default function Game() {
     } else if (dealerPoints > 21) {
       setGameOver(true);
       setResult("Dealer busted! You win.");
+      return;
     }
 
     if (stand) {
@@ -113,29 +146,25 @@ export default function Game() {
 
   return (
     <div>
+      {result ? (
+        <div className="row">
+          <h2>{result}</h2>
+        </div>
+      ) : null}
       <div className="scene">
         {dealerPoints > 0 ? (
           <div className="row">Dealer: {dealerPoints}</div>
         ) : null}
-        <div className="row">
-          {dealerCards.map(({ suit, number }, key) => (
-            <Card key={key} suit={suit} number={number} />
-          ))}
-        </div>
+        <div className="row">{dealerCards}</div>
 
         <div className="divider"></div>
 
         {points > 0 ? <div className="row">You: {points}</div> : null}
-        <div className="row">
-          {cards.map(({ suit, number }, key) => (
-            <Card key={key} suit={suit} number={number} />
-          ))}
-        </div>
+        <div className="row">{cards}</div>
       </div>
 
       <div className="divider"></div>
 
-      {result ? <div className="row">{result}</div> : null}
       {cards.length && !gameOver ? (
         <div className="row">
           <button onClick={hit}>Hit!</button>
